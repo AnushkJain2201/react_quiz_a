@@ -15,6 +15,7 @@ const initialState = {
 
 	// 'loading', 'error', 'ready', 'active', 'finished'
 	status: "loading",
+	index: 0
 };
 
 const reducer = (state, action) => {
@@ -42,7 +43,7 @@ const reducer = (state, action) => {
 
 function App() {
 	// used a useReducer hook to create a state to store all the questions that we fetch from our fake API
-	const [{ questions, status }, dispatch] = useReducer(reducer, initialState);
+	const [{ questions, status, index }, dispatch] = useReducer(reducer, initialState);
 
 	const numQuestions = questions.length;
 
@@ -67,7 +68,7 @@ function App() {
 					<StartScreen numQuestions={numQuestions} dispatch={dispatch} />
 				)}
 
-				{status === "active" && <Question />}
+				{status === "active" && <Question question={questions.at(index)} />}
 			</Main>
 		</div>
 	);
