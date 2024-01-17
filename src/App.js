@@ -4,7 +4,10 @@
 
 import { useEffect, useReducer } from "react";
 import Header from "./Header";
+import Error from "./Error";
+import Loader from "./Loader";
 import Main from "./Main";
+import StartScreen from "./StartScreen";
 
 const initialState = {
 	questions: [],
@@ -34,7 +37,9 @@ const reducer = (state, action) => {
 
 function App() {
 	// used a useReducer hook to create a state to store all the questions that we fetch from our fake API
-	const [state, dispatch] = useReducer(reducer, initialState);
+	const [{questions, status}, dispatch] = useReducer(reducer, initialState);
+
+	const numQuestions = questions.length;
 
 	useEffect(() => {
 		fetch("http://localhost:8000/questions")
@@ -49,8 +54,11 @@ function App() {
 			<Header />
 
 			<Main>
-				<p>1/15</p>
-				<p>Question?</p>
+				{status === 'loading' && <Loader />}
+
+				{status === 'error' && <Error />}
+
+				{status === 'ready' && <StartScreen numQuestions={numQuestions} />}
 			</Main>
 		</div>
 	);
