@@ -15,7 +15,9 @@ const initialState = {
 
 	// 'loading', 'error', 'ready', 'active', 'finished'
 	status: "loading",
-	index: 0
+	index: 0,
+	answer: null,
+	points: 0,
 };
 
 const reducer = (state, action) => {
@@ -28,12 +30,30 @@ const reducer = (state, action) => {
 			};
 
 		case "start":
-			return { ...state, status: "active" };
+			return {
+				...state,
+				status: "active",
+			};
 
 		case "dataFailed":
 			return {
 				...state,
 				status: "error",
+			};
+
+		case "newAnswer":
+			// Here, we are getting the current question
+			const question = state.questions.at(state.index);
+
+			return {
+				...state,
+				answer: action.payload,
+
+				// Adding new points if the answer is correct with the correctOption of the current question
+				points:
+					action.payload === question.correctOption
+						? state.points + question.points
+						: state.points,
 			};
 
 		default:
@@ -43,7 +63,10 @@ const reducer = (state, action) => {
 
 function App() {
 	// used a useReducer hook to create a state to store all the questions that we fetch from our fake API
-	const [{ questions, status, index }, dispatch] = useReducer(reducer, initialState);
+	const [{ questions, status, index, answer }, dispatch] = useReducer(
+		reducer,
+		initialState
+	);
 
 	const numQuestions = questions.length;
 
@@ -65,10 +88,19 @@ function App() {
 				{status === "error" && <Error />}
 
 				{status === "ready" && (
-					<StartScreen numQuestions={numQuestions} dispatch={dispatch} />
+					<StartScreen
+						numQuestions={numQuestions}
+						dispatch={dispatch}
+					/>
 				)}
 
-				{status === "active" && <Question question={questions.at(index)} />}
+				{status === "active" && (
+					<Question
+						question={questions.at(index)}
+						dispatch={dispatch}
+						answer={answer}
+					/>
+				)}
 			</Main>
 		</div>
 	);
