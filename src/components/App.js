@@ -10,6 +10,7 @@ import Main from "./Main";
 import StartScreen from "./StartScreen";
 import Question from "./Question";
 import NextButton from "./NextButton";
+import Progress from "./Progress";
 
 const initialState = {
 	questions: [],
@@ -61,7 +62,7 @@ const reducer = (state, action) => {
 			return {
 				...state,
 				index: state.index + 1,
-				answer: null
+				answer: null,
 			};
 
 		default:
@@ -71,12 +72,13 @@ const reducer = (state, action) => {
 
 function App() {
 	// used a useReducer hook to create a state to store all the questions that we fetch from our fake API
-	const [{ questions, status, index, answer }, dispatch] = useReducer(
+	const [{ questions, status, index, answer, points }, dispatch] = useReducer(
 		reducer,
 		initialState
 	);
 
 	const numQuestions = questions.length;
+	const maxPossiblePoints = questions.reduce((prev, curr) => prev + curr.points, 0);
 
 	useEffect(() => {
 		fetch("http://localhost:8000/questions")
@@ -104,6 +106,14 @@ function App() {
 
 				{status === "active" && (
 					<>
+						<Progress
+							index={index}
+							numQuestions={numQuestions}
+							points={points}
+							maxPossiblePoints={maxPossiblePoints}
+							answer={answer}
+						/>
+
 						<Question
 							question={questions.at(index)}
 							dispatch={dispatch}
