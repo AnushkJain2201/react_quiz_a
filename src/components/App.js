@@ -11,6 +11,7 @@ import StartScreen from "./StartScreen";
 import Question from "./Question";
 import NextButton from "./NextButton";
 import Progress from "./Progress";
+import FinishScreen from "./FinishScreen";
 
 const initialState = {
 	questions: [],
@@ -20,6 +21,7 @@ const initialState = {
 	index: 0,
 	answer: null,
 	points: 0,
+	highscore: 0,
 };
 
 const reducer = (state, action) => {
@@ -65,6 +67,16 @@ const reducer = (state, action) => {
 				answer: null,
 			};
 
+		case "finish":
+			return {
+				...state,
+				status: "finished",
+				highscore:
+					state.points > state.highscore
+						? state.points
+						: state.highscore,
+			};
+
 		default:
 			throw new Error("Action Unknown");
 	}
@@ -72,13 +84,16 @@ const reducer = (state, action) => {
 
 function App() {
 	// used a useReducer hook to create a state to store all the questions that we fetch from our fake API
-	const [{ questions, status, index, answer, points }, dispatch] = useReducer(
+	const [{ questions, status, index, answer, points, highscore }, dispatch] = useReducer(
 		reducer,
 		initialState
 	);
 
 	const numQuestions = questions.length;
-	const maxPossiblePoints = questions.reduce((prev, curr) => prev + curr.points, 0);
+	const maxPossiblePoints = questions.reduce(
+		(prev, curr) => prev + curr.points,
+		0
+	);
 
 	useEffect(() => {
 		fetch("http://localhost:8000/questions")
@@ -120,8 +135,21 @@ function App() {
 							answer={answer}
 						/>
 
-						<NextButton dispatch={dispatch} answer={answer} />
+						<NextButton
+							dispatch={dispatch}
+							answer={answer}
+							numQuestions={numQuestions}
+							index={index}
+						/>
 					</>
+				)}
+
+				{status === "finished" && (
+					<FinishScreen
+						points={points}
+						maxPossiblePoints={maxPossiblePoints}
+						highscore={highscore}
+					/>
 				)}
 			</Main>
 		</div>
